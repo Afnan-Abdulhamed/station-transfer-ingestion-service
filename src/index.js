@@ -1,11 +1,12 @@
 import "dotenv/config";
 import express from "express";
 import pg from "pg";
+import { PostgresStore } from "./store/postgresStore.js";
+import { TransferIngestService } from "./services/transferIngestService.js";
+import { StationSummaryService } from "./services/stationSummaryService.js";
+import { mountRoutes } from "./routes.js";
 
 const { Pool } = pg;
-
-const app = express();
-app.use(express.json());
 
 const pool = new Pool({
   host: process.env.DB_HOST,
@@ -15,6 +16,19 @@ const pool = new Pool({
   database: process.env.DB_NAME,
 });
 
+const store = new PostgresStore(pool);
+const transferIngestService = new TransferIngestService(store);
+const stationSummaryService = new StationSummaryService(store);
+
+const app = express();
+app.use(express.json());
+
+mountRoutes(app, { transferIngestService, stationSummaryService });
+
+app.use((err, _req, res, _next) => {
+  console.error(err);
+  res.status(500).json({ error: "Internal server error" });
+});
 
 const port = Number(process.env.PORT ?? 3000);
 app.listen(port, () => {
