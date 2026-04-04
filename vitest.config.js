@@ -5,5 +5,7 @@ export default defineConfig({
     environment: "node",
     include: ["tests/**/*.test.js"],
     hookTimeout: 15_000, // 15 seconds for the tests to complete
+    // One shared Postgres DB: avoid parallel files truncating / racing each other.
+    fileParallelism: false,
   },
 });

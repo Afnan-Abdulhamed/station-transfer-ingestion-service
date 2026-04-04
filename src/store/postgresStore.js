@@ -50,7 +50,7 @@ export class PostgresStore extends BaseStore {
     const client = await this._pool.connect();
     try {
       await client.query("BEGIN");
-      const { rowCount } = await client.query(INSERT_BATCH, [
+      const result = await client.query(INSERT_BATCH, [
         eventIds,
         stationIds,
         amounts,
@@ -58,7 +58,8 @@ export class PostgresStore extends BaseStore {
         createdAts,
       ]);
       await client.query("COMMIT");
-      const inserted = rowCount ?? 0;
+      // Use RETURNING row count — pg rowCount for INSERT can disagree with ON CONFLICT DO NOTHING.
+      const inserted = result.rows.length;
       return { inserted, duplicates: n - inserted };
     } catch (err) {
       await client.query("ROLLBACK");
