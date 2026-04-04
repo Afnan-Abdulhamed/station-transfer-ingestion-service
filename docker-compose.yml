@@ -48,13 +48,12 @@ services:
       DB_NAME: ${POSTGRES_DB:-station_transfers}
     volumes:
       - .:/app
-      - dev_node_modules:/app/node_modules
     depends_on:
       - db
 
   pgadmin:
     profiles: [dev]
-    image: dpage/pgadmin4:8
+  image: dpage/pgadmin4:8
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@local.test}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
@@ -67,5 +66,4 @@ services:
 
 volumes:
   pgdata:
-  dev_node_modules:
   pgadmin_data:
